@@ -7,12 +7,22 @@
     <title>Variables Cheat Sheet</title>
 </head>
 <body>
-    
+    <p id="nameprint"></p>
+    <p id="nameprint_templit"></p>
+    <p id="calculation">0</p>
 
     <script>
         //Min første javascript-kommentar, men ikke første variabel:
         const firstName = "Simon"
+        //Skriver ut firstName til konsollen
+        console.log(firstName)
+        //Skriver ut firstName til HTML med konkatinering
+        document.getElementById("nameprint").innerHTML = "Hei, " + firstName + "!"
+        //Skriver ut firstName til HTML med template literal
+        document.getElementById("nameprint_templit").innerHTML = `Hei, ${firstName}! Hvordan går det i dag?`
 
+        //Skriver ut et enkelt mattestykke
+        document.getElementById("calculation").innerHTML = 10 + 5
     </script>
 </body>
 </html>
