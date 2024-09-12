@@ -44,12 +44,19 @@
 
         /*
             Vi skal skrive ut hver foreleser i array-en som et listepunkt <li>
+            Før vi skriver ut array-en, skal vi filtrere vekk forelesere født før 1990
+            Vi må gå gjennom hele array-en med et filter: .filter()
+            Når vi kjører .filter(), må vi mellomlagre element i en variabel: lecturer
+            For hver lecturer, må vi gjøre en sammenligning (som en if-betingelse)
+            I dette tilfellet; er birthYear større eller lik 1990, skal foreleseren inkluderes
+            
+            Etter vi har filtrert, skal vi skrive ut de gjenværende foreleserne
             Vi må gå gjennom hele array-en med .map()
             Når vi .map()-er, må vi mellomlagre element i en variabel: lecturer
             For hver lecturer, må vi legge til en <li> i <ul id="profiles">
         */
 
-        lecturers.map(
+        lecturers.filter(lecturer => lecturer.birthYear >= 1990).map(
             lecturer => document.getElementById("profiles").innerHTML += `<li>${lecturer.personName} 
                 <ul>
                     ${lecturer.courses.map(course => `<li>${course}</li>`).join("")}
