@@ -37,7 +37,7 @@
             border: 6px solid #2c3e50;
             border-radius: 10px;
             display: grid;
-            grid-template: repeat(4, 1fr) / repeat(4, 1fr);
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
         }
         
         .celle {
@@ -84,7 +84,6 @@
 <body>
     <section id="playerturn">Spiller <span id="player"></span> (<span id="playermark"></span>) sin tur:</section>
     <section id="gamearea">
-        <!--Lagt til +8 celler for å matche antall ruter på spillbrettet -->
         <div id="celle0" class="celle"></div>
         <div id="celle1" class="celle"></div>
         <div id="celle2" class="celle"></div>
@@ -94,13 +93,6 @@
         <div id="celle6" class="celle"></div>
         <div id="celle7" class="celle"></div>
         <div id="celle8" class="celle"></div>
-        <div id="celle9" class="celle"></div>
-        <div id="celle10" class="celle"></div>
-        <div id="celle11" class="celle"></div>
-        <div id="celle12" class="celle"></div>
-        <div id="celle13" class="celle"></div>
-        <div id="celle14" class="celle"></div>
-        <div id="celle15" class="celle"></div>
     </section>
     <section>
     <section id="gamesPlayed">Antall spill: <span id="gamesAmount"></span></section>
@@ -114,10 +106,9 @@
         Indexene starter på 0, og blir 1 større for hver ting som lagres. Det vil si at spillerbrettet med
         3x3 ruter har disse indexene:
 
-        0   1   2   3
-        4   5   6   7
-        8   9  10  11
-        12  13 14  15
+        0   1   2
+        3   4   5
+        6   7   8
 
         Dermed kan vi se, hvis det er plassert en X i plassene med index 0, 1 og 2, at 
         spilleren med spillermerket X vinner (har 3 på rad). Det samme ville han ha gjort
@@ -148,19 +139,15 @@
         //(indexer i spillerBrikker-arrayen)
         //som utgjør vinnerkombinasjoner. Disse lagrer vi i en array med 2 nivåer 
         //(en array, som inneholder nye arrayer med vinnerkombinasjonene)
-
-        //Nye vinnerkominasjoner per 4x4 rekker
         var winningCombos = [
-            [0, 1, 2, 3],
-            [4, 5, 6, 7],
-            [8, 9, 10, 11],
-            [12, 13, 14, 15],
-            [0, 4, 8, 12],
-            [1, 5, 9, 13],
-            [2, 6, 10, 14],
-            [3, 7, 11, 15],
-            [0, 5, 10, 15],
-            [3, 6, 9, 12]
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
         ];
         //Disse kan vi nå vise til ved å si winningCombos[0]. Variabelen winningCombos[0] inneholder nå en array med verdiene [0, 1, 2].
         //Viser vi til winningCombos[0][1] viser vi til index 1 i den første arrayen på nivå 2. Den innholder verdien 1. Denne verdien
@@ -170,17 +157,13 @@
         //trenger vi en oversikt over Spillbrettplasseringer. Disse kan vi lagre i en array, siden vi fra
         //starten av koden så at spillbrettet kan tenkes på som indexer i en array.
         //Vi lager klar en oversikt, en array, med 9 tomme plasseringer vi senere kan fylle med spillervalg.
-
-        //Antallet spillerbrikker måtte økes til 16 (0-15) for å matche antall celler på brettet
-        var spillerBrikker = ["","","","","","","","","","","","","","","",""];
+        var spillerBrikker = ["","","","","","","","",""];
 
         //Videre trenger vi å registrere når en spiller klikker på en rute i spillbrettet.
         //Når en spiller klikker på en rute, skal vi få noe til å skje i koden, derfor kaller vi
         //en funksjon kalt spill(), og sender en parameter inn i funksjonen for å fortelle hvilken rute
         //(0-8, igjen trenger vi koblingen mellom array-indexer og spillbrettet fra starten av koden)
         //som er trykket på.
-
-        //Lagt til +8 celler, tilsvarende HTML-dokumentet
         document.getElementById("celle0").addEventListener("click", function() {
             spill(0);
         });
@@ -207,27 +190,6 @@
         });
         document.getElementById("celle8").addEventListener("click", function() {
             spill(8);
-        });
-        document.getElementById("celle9").addEventListener("click", function() {
-            spill(9);
-        });
-        document.getElementById("celle10").addEventListener("click", function() {
-            spill(10);
-        });
-        document.getElementById("celle11").addEventListener("click", function() {
-            spill(11);
-        });
-        document.getElementById("celle12").addEventListener("click", function() {
-            spill(12);
-        });
-        document.getElementById("celle13").addEventListener("click", function() {
-            spill(13);
-        });
-        document.getElementById("celle14").addEventListener("click", function() {
-            spill(14);
-        });
-        document.getElementById("celle15").addEventListener("click", function() {
-            spill(15);
         });
 
         
@@ -304,36 +266,24 @@
             //Vi må sjekke etter vinner for hver brikke som plasseres på brettet.
             //Dette gjør vi ved å gå gjennom alle vinnerkombinasjonene, og
             //sjekke om brikkene på spillbrettet er like ved indexene til vinnerkombinasjonene:
-
-            /*
-                For å matche det nye setter med kominasjoner per 4x4 ruter, 
-                måtte det samlige endringer til i utregning av kombinasjonene,
-                og hvorvidt spillerens brikker står nøyaktig på rett posisjon
-                (som totalt utgjør en vinnerkombinasjon)
-            */
-            for(var combination = 0; combination <= 9; combination++) {
+            for(var combination = 0; combination <= 7; combination++) {
                 var vinnerKomboPlass1 = winningCombos[combination][0]; //Henter ut plassering av vinnerkombinasjonens rad 1, eksempel winningCombos[0][0] første runde, som inneholder verdien 0.
                 var vinnerKomboPlass2 = winningCombos[combination][1];
                 var vinnerKomboPlass3 = winningCombos[combination][2];
-                var vinnerKomboPlass4 = winningCombos[combination][3];
 
                 var brikke1 = spillerBrikker[vinnerKomboPlass1]; //Henter ut verdien (spillmerket) på indexen til første vinnerkombinasjonsplass fra spillerBrikker, eksempel spillerBrikker[0] første runde.
                 var brikke2 = spillerBrikker[vinnerKomboPlass2];
                 var brikke3 = spillerBrikker[vinnerKomboPlass3];
-                var brikke4 = spillerBrikker[vinnerKomboPlass4];
 
                 //Hvis en av plassene i vinnerkombinasjonen er tom, er det ikke vunnet noe.
                 //Da kan løkken bare fortsette å kjøre.
-                if(brikke1 === "" || brikke2 === "" || brikke3 === "" || brikke4 === "") {
+                if(brikke1 === "" || brikke2 === "" || brikke3 === "") {
                     continue;
                 }
 
-                /*
-                    Hvis brikke1 er det samme som brikke2, brikke2 er det samme som
-                    brikke3, og brikke3 er det samme som brikke4, er alle like, 
-                    og vi har en vinnerkombinasjon.
-                */
-                if(brikke1 === brikke2 && brikke2 === brikke3 && brikke3 === brikke4) {
+                //Hvis brikke1 er det samme som brikke 2, og brikke 2 er det samme som
+                //brikke3, er alle like, og vi har en vinnerkombinasjon. Da 
+                if(brikke1 === brikke2 && brikke2 === brikke3) {
                     rundenVunnet = true;
                     break;
                 }
@@ -343,19 +293,14 @@
             if(rundenVunnet === true) {
                 //Skriv ut hvilken spiller som har vunnet
                 document.getElementById("playerturn").innerHTML = "Spiller " + player + " har vunnet!";
-
-                //Endrer bakgrunnsfargen på vinner-utskriften til gull
+                //OPPGAVE 2 - Endrer bakgrunnsfargen på vinner-utskriften til gull
                 document.getElementById("playerturn").style.backgroundColor = "#FFD700";
-
-                //Endrer fargen på vinnerens spillmerker til gull.
-                /* 
-                    For å finne riktig celle, konkatineres den generelle id-en "celle" 
-                    med plassen til hver individuell brikke (med vinnerkombinasjon-plass) 
-                */
+                //OPPGAVE 4 - Endrer fargen på vinnerens spillmerker til gull.
+                /* For å finne riktig celle, konkatineres den generelle id-en "celle" 
+                med plassen til hver individuell brikke (med vinnerkombinasjon-plass) */
                 document.getElementById("celle" + vinnerKomboPlass1).style.color = "#FFD700";
                 document.getElementById("celle" + vinnerKomboPlass2).style.color = "#FFD700";
                 document.getElementById("celle" + vinnerKomboPlass3).style.color = "#FFD700";
-                document.getElementById("celle" + vinnerKomboPlass4).style.color = "#FFD700";
                 //Gjør restart spill-knappen synlig
                 document.getElementById("newgame").style.display = "block";
                 //Sett spillstatus til false, slik at ingen spillere får plassere
@@ -372,17 +317,14 @@
         //Dette samler vi i en funksjon, slik at vi kan kalle funksjonen og utføre alle disse tingene når vi trenger det:
         function restartGame() {
             // 1)
-            spillerBrikker = ["","","","","","","","","","","","","","","",""];
+            spillerBrikker = ["","","","","","","","",""];
             var celleteller = 0;
-            while (celleteller < 16) {
+            while (celleteller < 9) {
                 document.getElementById("celle" + celleteller).innerHTML = "";
-                
-                //Fjerner fargen per vinnerbrikke på brettet
-                /* 
-                    Her kunne man opprettet en variabel i forkant med verdien:
-                    document.getElementById("celle" + celleteller), for så å manipulere
-                    innholdet. Dette om man skal gjenbruke kodelinjen.
-                */
+                // OPPGAVE 4 FORTS - Fjerner fargen per vinnerbrikke på brettet
+                /* Her kunne man opprettet en variabel i forkant med verdien:
+                document.getElementById("celle" + celleteller), for så å manipulere
+                innholdet */
                 document.getElementById("celle" + celleteller).style.color = "";
                 celleteller++;
             }
@@ -393,19 +335,12 @@
             playermark = "X";
             // 4)
             document.getElementById("playerturn").innerHTML = 'Spiller <span id="player">1</span> (<span id="playermark">X</span>) sin tur:';
-            /*
-                Fjerner bakgrunnsfargen på vinner-utskriften
-                Bakgrunnen har originalt ingen farge, derav transparant 
-            */
+            /* OPPGAVE 2 FORTS - Fjerner bakgrunnsfargen på vinner-utskriften
+            Bakgrunnen har originalt ingen farge, derav transparant */
             document.getElementById("playerturn").style.backgroundColor = "";
-            /*
-                Gjør restart spill-knappen usynlig
-                Så ingen hensikt i å la den stå synlig for spillerne etter restart,
-                da spillet ikke er gjennomført enda.
-            */
+            //Gjør restart spill-knappen usynlig
             document.getElementById("newgame").style.display = "none";
-
-            //Oppdaterer antallSpill-variabelen med 1, og utskriften deretter
+            //OPPGAVE 5 - Oppdaterer antallSpill-variabelen med 1, og utskriften deretter
             antallSpill++;
             document.getElementById("gamesAmount").innerHTML = antallSpill;
         }

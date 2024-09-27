@@ -270,6 +270,12 @@
                     //siden dette er et litt større sett med handlinger og kan gi noen ulike utfall.
                     sjekkVinner()
 
+                    /* 
+                        Oppretter en variabel "vunnet" med verdien av det sjekkVinner-funksjonen
+                        returnerer, derav verdien av "rundenVunnet"-variabelen innad.
+                    */
+                    var vunnet = sjekkVinner()
+                    
                 //Men, hvis cellen ikke er ledig...
                 } else {
                     //...skriver vi ut en beskjed til spilleren, og lar han velge en ny celle.
@@ -280,16 +286,29 @@
                 //Når spillerens tur er ferdig, er det neste spillers tur.
                 //Det viser vi ved å sette variabelen "player" til 2 hvis den var 1 denne turen, eller hvis den var 2, sett tilbake til 1.
                 //På samme måte må spillersymbolet veksles mellom X og O.
-                if (player === 1) {
-                    player = 2;
-                    playermark = "O";
-                } else {
-                    player = 1;
-                    playermark = "X";
+
+                /*
+                    Oppretter en if-test som tar utgangspunkt i variabelen "vunnet".
+                    Denne variabelen innehar verdien av "rundenVunnet"-variabelen, hentet fra
+                    funksjonen "sjekkVinner". Dersom det ikke finnes en vinner (false), vil
+                    programmet kjøre som normalt - og bytte spiller for tur. Ellers (true) vil det stoppe
+                    før det får mulighet til å bytte spiller og endre vinner-utskriften.
+                */
+                if (vunnet === false) {
+                    if (player === 1) {
+                        player = 2;
+                        playermark = "O";
+                    } else {
+                        player = 1;
+                        playermark = "X";
+                    }
+                    if(spillStatus === true) {
+                        document.getElementById("player").innerHTML = player;
+                        document.getElementById("playermark").innerHTML = playermark;
+                    }
                 }
-                if(spillStatus === true) {
-                    document.getElementById("player").innerHTML = player;
-                    document.getElementById("playermark").innerHTML = playermark;
+                else {
+                    return;
                 }
             //Hvis spillstatus er false, avslutter vi funksjonen uten å utføre noen handlinger.
             } else {
@@ -346,22 +365,13 @@
                     Nedtellingen får mulighet til å kjøre uten forsyrrelser fra spillerne.
                 */
                 spillStatus = false;
-                /*
-                    Oppretter en variabel med den nåværende spilleren, for så å 
-                    benytte denne i vinner-utskriften senere. Variabelen kan ikke overskrives av at koden
-                    "bytter" spiller, da variabelen allerede har en gitt verdi.
-                */
-                var winner = player;
+
                 /*
                     Setter en nedtelling på 1 sekund før vinneren avsløres.
                 */
                 setTimeout(function() {
                 //Skriv ut hvilken spiller som har vunnet
-                /*
-                    Nå med variabelen "winner", får å skrive ut spilleren som hadde tur på tidspunktet
-                    hvor rundenVunnet var "true".
-                */
-                document.getElementById("playerturn").innerHTML = "Spiller " + winner + " har vunnet!";
+                document.getElementById("playerturn").innerHTML = "Spiller " + player + " har vunnet!";
 
                 //Endrer bakgrunnsfargen på vinner-utskriften til gull
                 document.getElementById("playerturn").style.backgroundColor = "#FFD700";
@@ -382,6 +392,11 @@
                 //spillStatus = false;
                 }, 1000);
             }
+            /* 
+            Returnerer boolean-verdien av "rundenVunnet" for å kunne benytte denne
+            utenfor funksjonens scope.
+            */
+            return rundenVunnet;
         }
 
         //Når et spill er avsluttet, og et nytt skal begynne, må vi gjøre klar en del ting:
