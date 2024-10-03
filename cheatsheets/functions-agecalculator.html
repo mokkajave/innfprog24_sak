@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alderskalkulator</title>
+</head>
+<body>
+    <h1>Regn ut din alder</h1>
+    <p id="ageSentence"></p>
+
+    <script>
+        //Dagens dato
+        const today = new Date()
+        let currentYear = today.getFullYear()
+
+        function ageCalculator(birthYear = "2000", year = currentYear) {
+            //Regner ut alder
+            const age = year - birthYear
+            console.log(age)
+            let text = ""
+            if (year > 2024) {
+                text = `I ${year} vil du være ${age} år gammel.`
+            }
+            else if (year < 2024) {
+                if (age < 0) {
+                    text = `I ${year} var det ${Math.abs(age)} år til du ble født i ${birthYear}.`//.replace("-", "")
+                }
+                else {
+                    text = `I ${year} var du ${age} år gammel.`
+                }
+            }
+            else {
+                text = `I år er du ${age} år gammel.`
+            }
+            document.getElementById("ageSentence").innerHTML = text
+        }
+
+        ageCalculator(2000, 1989)
+    </script>
+</body>
+</html>

@@ -7,9 +7,38 @@
     <title>Functions Cheat Sheet</title>
 </head>
 <body>
+    <p>Simon Knøsmoen. E-post: <span id="emailContainer"></span></p>
     
     <script>
-        
+        //Deklarerer en funksjon
+        function myFirstFunction() {
+            console.log("Jeg kjører min første funksjon (ikke egentlig) :)")
+        }
+        //Kjører (kaller) funksjonen:
+        myFirstFunction()
+
+        //Deklarerer en funksjon, med en parameter
+        function printName(name) {
+            console.log("Jeg heter " + name)
+        }
+        printName("Simon")
+
+        //Deklarerer en funksjon, med en parameter som har en standard verdi
+        function printDefaultName(name = "ingenting enda...") {
+            console.log("Jeg heter " + name)
+        }
+        printDefaultName()
+
+        //Lager en funksjon med e-post som link (template)
+        function createEmailLink(email) {
+            if (!email) {
+                return "Ikke oppgitt"
+            }
+            return `<a href="mailto:${email}">${email}</a>`
+        }
+        console.log(createEmailLink("simonakn@hiof.no"))
+        document.getElementById("emailContainer").innerHTML = createEmailLink("simonakn@hiof.no")
+
     </script>
 </body>
 </html>
