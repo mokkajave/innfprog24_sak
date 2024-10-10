@@ -109,24 +109,79 @@
         document.getElementById("functions").innerHTML = notebook.functions; */
 
         //(BONUS) TODO: function for all prints
-        function updateStaticUI(p, nb) {
-            if (p.player === "") {
+        function updateStaticUI() {
+            if (config.player === "") {
                 document.getElementById("playerName").innerHTML = "Waiting for player..."
             }
             else {
-                document.getElementById("playerName").innerHTML = p.player;
+                document.getElementById("playerName").innerHTML = config.player;
             }
-            document.getElementById("energy").innerHTML = p.energy;
-            document.getElementById("points").innerHTML = p.points;
-            document.getElementById("duration").innerHTML = p.duration;
+            document.getElementById("energy").innerHTML = config.energy;
+            document.getElementById("points").innerHTML = config.points;
+            document.getElementById("duration").innerHTML = config.duration;
 
-            document.getElementById("variables").innerHTML = nb.variables;
-            document.getElementById("arrays").innerHTML = nb.arrays;
-            document.getElementById("loops").innerHTML = nb.loops;
-            document.getElementById("functions").innerHTML = nb.functions;
+            document.getElementById("variables").innerHTML = notebook.variables;
+            document.getElementById("arrays").innerHTML = notebook.arrays;
+            document.getElementById("loops").innerHTML = notebook.loops;
+            document.getElementById("functions").innerHTML = notebook.functions;
         }
         
-        updateStaticUI(config, notebook);
+        updateStaticUI();
+
+        //Updates a single stat
+        function updateSingleStaticUI(element, value) {
+            document.getElementById(element).innerHTML = value
+        }
+        //updateSingleStaticUI("duration", 31)
+
+        function updateConfigValue(configType, value) {
+            configType === "energy" ? config.energy += value : null
+            configType === "points" ? config.points += value : null
+            configType === "duration" ? config.duration += value : null
+            configType === "variables" ? notebook.variables += value : null
+            configType === "arrays" ? notebook.arrays += value : null
+            configType === "loops" ? notebook.loops += value : null
+            configType === "functions" ? notebook.functions += value : null
+
+            updateStaticUI()
+        }
+        //updateConfigValue("energy", -3)
+        //updateConfigValue("duration", 100)
+        //updateConfigValue("loops", 1000)
+
+        //Open or close notebook and info
+        const notebookBtn = document.getElementById("notebookToggler")
+        const infoBtn = document.getElementById("infoToggler")
+
+        const notebook_page = document.getElementById("notebook")
+        const info_page = document.getElementById("info")
+
+        function toggleVisibility(elementId) {
+            if (elementId.classList.contains("hidden")) {
+                elementId.classList.remove("hidden")
+                elementId.style.display = "block"
+            }
+            else {
+                elementId.classList.add("hidden")
+                elementId.style.display = "none"
+            }
+        }
+
+        notebookBtn.addEventListener("click", function() {
+            toggleVisibility(notebook_page)
+        })
+        infoBtn.addEventListener("click", function() {
+            toggleVisibility(info_page)
+        })
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "n") {
+                toggleVisibility(notebook_page)
+            }
+            if (event.key === "i") {
+                toggleVisibility(info_page)
+            }
+        })
     </script>
 </body>
 </html>
