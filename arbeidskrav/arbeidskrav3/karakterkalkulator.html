@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karakterkalkulator</title>
+    <style>
+        body {
+            background-color: antiquewhite;
+            text-align: center;
+            font-family: Georgia, serif;
+        }
+
+        #karakter {
+            font-size: 260px;
+            margin: 0;
+        }
+
+        button {
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        #overskrift {
+            margin-bottom: 0;
+        }
+        #underoverskrift {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="overskrift">KARAKTERKALKULATOREN</h1>
+    <p id="underoverskrift">- Skriv inn poengsum per oppgave 1 og 2, og få din eksamenskarakter -</p>
+
+    <p id="karakter">?</p>
+
+    <p>
+        <label for="oppgave1">OPPGAVE 1:</label>
+        <br><input id="oppgave1" type="number"/>
+    </p>
+    <p>
+        <label for="oppgave2">OPPGAVE 2:</label>
+        <br><input id="oppgave2" type="number"/>
+    </p>
+    <p>
+        <button id="utregning">BEREGN KARAKTER</button>
+    </p>
+
+    <script>
+
+        function printGrade() {
+            //Karakterskala
+            const grades = [
+                {grade: "F", treshold: 0},
+                {grade: "E", treshold: 25},
+                {grade: "D", treshold: 44},
+                {grade: "C", treshold: 68},
+                {grade: "B", treshold: 88},
+                {grade: "A", treshold: 100}
+            ]
+
+            //Poeng
+            const maksPoengOppgave1 = 10
+            const maksPoengOppgave2 = 12
+
+            const poengOppgave1 = document.getElementById("oppgave1").value
+            const poengOppgave2 = document.getElementById("oppgave2").value
+
+            //Formel for utregning
+            let poengsum = (0.3 * (poengOppgave1 / maksPoengOppgave1 * 100)) 
+            + (0.7 * (poengOppgave2 / maksPoengOppgave2 * 100))
+
+            //Utskrift
+            const utskrift = document.getElementById("karakter")
+
+            //Sjekker poengsum opp mot karakterskala, og om det finnes en verdi
+            if (poengOppgave1 === "" || poengOppgave2 === "") {
+                alert("Vennligst oppgi poengsum for både oppgave 1 og 2.")
+            }
+            else {
+                utskrift.innerHTML = "."
+                const interval = setInterval(function() {
+                    utskrift.innerHTML += "."
+
+                    if (utskrift.innerHTML === "....") {
+                        if (poengsum <= grades[0].treshold) {
+                            utskrift.innerHTML = grades[0].grade
+                        }
+                        if (poengsum > grades[0].treshold && poengsum <= grades[1].treshold) {
+                            utskrift.innerHTML = grades[1].grade
+                        }
+                        if (poengsum > grades[1].treshold && poengsum <= grades[2].treshold) {
+                            utskrift.innerHTML = grades[2].grade
+                        }
+                        if (poengsum > grades[2].treshold && poengsum <= grades[3].treshold) {
+                            utskrift.innerHTML = grades[3].grade
+                        }
+                        if (poengsum > grades[3].treshold && poengsum <= grades[4].treshold) {
+                            utskrift.innerHTML = grades[4].grade
+                        }
+                        if (poengsum > grades[4].treshold) {
+                            utskrift.innerHTML = grades[5].grade
+                        }
+                        clearInterval(interval)
+                    }
+                }, 500)
+            }
+        }
+
+        //Regner ut og printer ved trykk på knapp
+        const btn = document.getElementById("utregning")
+        btn.addEventListener("click", printGrade)
+        
+    </script>
+</body>
+</html>
