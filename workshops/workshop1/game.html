@@ -31,8 +31,9 @@
         </nav>
     </header>
     <main>
-        
-        <section id="notebook">
+        <canvas id ="game-area"></canvas>
+
+        <section id="notebook" class="hidden">
             <div id="notebook-page">
                 
                 <h2>Notater</h2>
@@ -74,16 +75,25 @@
         </section>
     </main>
     <script>
+        //Canvas config
+        const canvas = document.getElementById("game-area")
+        canvas.width = 800
+        canvas.height = 600
+        const ctx = canvas.getContext("2d")
+
         //PREPARE GAME CONFIG AND VARIABLES
-        //TODO: config
+
+        //Game config
         const config = {
             player: "Simon",
-            energy: 5,
-            points: 10,
-            duration: 138
+            energy: 3,
+            points: 0,
+            duration: 0,
+            gamePaused: false,
+            gamePausedText: "Press P to pause"
         }
 
-        //TODO: notebook
+        //Notebook
         const notebook = {
             variables: 3,
             arrays: 2,
@@ -91,24 +101,25 @@
             functions: 7
         }
 
-        //TODO: print playerinfo to HTML
-        /* if (config.player === "") {
-            document.getElementById("playerName").innerHTML = "Waiting for player..."
-        }
-        else {
-            document.getElementById("playerName").innerHTML = config.player;
-        }
-        document.getElementById("energy").innerHTML = config.energy;
-        document.getElementById("points").innerHTML = config.points;
-        document.getElementById("duration").innerHTML = config.duration;
-        
-        //TODO: print notebook info to HTML
-        document.getElementById("variables").innerHTML = notebook.variables;
-        document.getElementById("arrays").innerHTML = notebook.arrays;
-        document.getElementById("loops").innerHTML = notebook.loops;
-        document.getElementById("functions").innerHTML = notebook.functions; */
+        //Array containing all item types
+        const itemTypes = ["variable", "array", "loop", "function", "bug", "energydrink"]
 
-        //(BONUS) TODO: function for all prints
+        //Hero config
+        const fortran = {
+            speed: 5,
+            x: canvas.width / 2,
+            y: canvas.height / 2
+        }
+
+        //Elements storage
+        const items = [
+            {type: "variable", x: 100, y: 50, lifetime: 8, caught: false},
+            {type: "loop", x: 430, y: 290, lifetime: 3, caught: false},
+            {type: "bug", x: 500, y: 400, lifetime: 0, caught: false},
+            {type: "function", x: 300, y: 400, lifetime: 0, caught: false}
+        ]
+
+        //Function for all prints
         function updateStaticUI() {
             if (config.player === "") {
                 document.getElementById("playerName").innerHTML = "Waiting for player..."
@@ -125,7 +136,7 @@
             document.getElementById("loops").innerHTML = notebook.loops;
             document.getElementById("functions").innerHTML = notebook.functions;
         }
-        
+
         updateStaticUI();
 
         //Updates a single stat
@@ -167,12 +178,11 @@
             }
         }
 
-        notebookBtn.addEventListener("click", function() {
-            toggleVisibility(notebook_page)
-        })
-        infoBtn.addEventListener("click", function() {
-            toggleVisibility(info_page)
-        })
+        //Config direction-variables
+        let up = false
+        let down = false
+        let right = false
+        let left = false
 
         document.addEventListener("keydown", function(event) {
             if (event.key === "n") {
@@ -181,7 +191,149 @@
             if (event.key === "i") {
                 toggleVisibility(info_page)
             }
+            //Checking for keys regarding change in direction
+            if (event.key === "w" || event.key === "ArrowUp") {
+                up = true
+            }
+            if (event.key === "s" || event.key === "ArrowDown") {
+                down = true
+            }
+            if (event.key === "d" || event.key === "ArrowRight") {
+                right = true
+            }
+            if (event.key === "a" || event.key === "ArrowLeft") {
+                left = true
+            }
+            //Pause-status
+            if (event.key === "p") {
+                config.gamePaused = !config.gamePaused
+            }
         })
+        document.addEventListener("keyup", function(event) {
+            if (event.key === "w" || event.key === "ArrowUp") {
+                up = false
+            }
+            if (event.key === "s" || event.key === "ArrowDown") {
+                down = false
+            }
+            if (event.key === "d" || event.key === "ArrowRight") {
+                right = false
+            }
+            if (event.key === "a" || event.key === "ArrowLeft") {
+                left = false
+            }
+        })
+
+        notebookBtn.addEventListener("click", function() {
+            toggleVisibility(notebook_page)
+        })
+        infoBtn.addEventListener("click", function() {
+            toggleVisibility(info_page)
+        })
+        
+        //Defining hero(image)
+        let fortranLoaded = false
+        let fortranImage = new Image()
+        fortranImage.src = "icons/fortran.png"
+        fortranImage.onload = () => { fortranLoaded = true }
+
+        //Function to draw items
+        function drawItem(type, x, y, lifetime) {
+            let itemImage = new Image()
+            itemImage.src = `icons/${type}.svg`
+            //itemImage.onload = () => { ctx.drawImage(itemImage, x, y) }
+            ctx.drawImage(itemImage, x, y)
+
+            if (type !== "bug") {
+                ctx.beginPath()
+                ctx.arc(x, y, 10, 0, 2 * Math.PI)
+                ctx.fillStyle = "red"
+                ctx.fill()
+                ctx.font = "11px Verdana"
+                ctx.fillStyle = "#ffff"
+                ctx.fillText(lifetime, x - 4, y + 4)
+                ctx.closePath()
+            }
+        }
+
+        setInterval(function() {
+            if (config.gamePaused === false) {
+                config.duration++
+                updateSingleStaticUI("duration", config.duration)
+            }
+
+        }, 1000)
+
+        //RequestAnimationFrame: automatiser nye bildetegninger
+        const requestAnimationFrame = window.requestAnimationFrame 
+        || window.webkitRequestAnimationFrame 
+        || window.msRequestAnimationFrame 
+        || window.mozRequestAnimationFrame
+
+        function drawElements() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            //Moving Fortran
+            if (config.gamePaused === false) {
+                if (up === true) {
+                    fortran.y = fortran.y - fortran.speed
+                }
+                if (down === true) {
+                    fortran.y = fortran.y + fortran.speed
+                }
+                if (right === true) {
+                    fortran.x = fortran.x + fortran.speed
+                }
+                if (left === true) {
+                    fortran.x = fortran.x - fortran.speed
+                }
+            }
+
+            if (fortranLoaded === true) {
+                ctx.drawImage(fortranImage, fortran.x, fortran.y)
+            }
+
+            if (config.gamePaused === true) {
+                ctx.beginPath()
+                ctx.font = "100px Arial"
+                ctx.fillStyle = "red"
+                ctx.fillText("PAUSED", 250, 300)
+                ctx.closePath()
+
+                //Updating informative text regarding pause
+                config.gamePausedText = "Press P to unpause"
+            }
+            else {
+                config.gamePausedText = "Press P to pause"
+            }
+
+            //Test:
+            //drawItem("function", 50, 100)
+            //drawItem("array", 400, 500)
+            /*items.map((item, index) => {
+                if (item.lifetime > 0 || item.type === "bug") {
+                    drawItem(item.type, item.x, item.y, item.lifetime)
+                }
+            })*/
+
+            items.filter((item) => item.lifetime > 0 || item.type === "bug").map((item, index) => {
+                drawItem(item.type, item.x, item.y, item.lifetime)
+            })
+
+            //Pause-text
+            ctx.beginPath()
+            ctx.fillStyle = "#fffffff"
+            ctx.fillRect(655, 575, 150, 30)
+            ctx.font = "18px Arial"
+            ctx.fillStyle = "#3c429b"
+            ctx.fillText(config.gamePausedText, 660, 595)
+            ctx.closePath()
+
+            requestAnimationFrame(drawElements)
+        }
+
+        drawElements()
+
     </script>
 </body>
 </html>

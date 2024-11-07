@@ -50,9 +50,9 @@
 
     <script>
 
-        function printGrade() {
-            //Karakterskala
-            const grades = [
+        //ESSENSIELT
+        //Karakterskala, hentet fra oppgavebeskrivelsen.
+        const grades = [
                 {grade: "F", treshold: 0},
                 {grade: "E", treshold: 25},
                 {grade: "D", treshold: 44},
@@ -60,58 +60,88 @@
                 {grade: "B", treshold: 88},
                 {grade: "A", treshold: 100}
             ]
+        
+        //Maks-poeng per oppgave (som benyttes til utregning senere):
+        const maksPoengOppgave1 = 10
+        const maksPoengOppgave2 = 12
+        
+        //Karakter-utskrift, som skal endret etter antall poeng.
+        const utskrift = document.getElementById("karakter")
 
-            //Poeng
-            const maksPoengOppgave1 = 10
-            const maksPoengOppgave2 = 12
+        //Henter knapp-element
+        const btn = document.getElementById("utregning")
+        
+        /*Med "input" kjører eventlistener-en en funksjon for hver gang input-feltene blir endret på.
+        Dette passer utmerket for å til enhver tid sjekke hvorvidt knappen burde være tilgjengelig.*/
+        document.getElementById("oppgave1").addEventListener("input", buttonAvailable)
+        document.getElementById("oppgave2").addEventListener("input", buttonAvailable)
 
+        //Regner ut og printer ved trykk på knapp
+        btn.addEventListener("click", printGrade)
+
+        
+        //FUNKSJONER
+        //Funksjon for å sjekke om knappen er disabled
+        function buttonAvailable() {
+
+            //Variabler som holder på verdien til hvert input-felt.
+            /*Nødvendig å ha disse inne i funksjonens scope, da for å sjekke hvorvidt verdien har endret seg
+            for hver gang funskjonen kjøres senere.*/
             const poengOppgave1 = document.getElementById("oppgave1").value
             const poengOppgave2 = document.getElementById("oppgave2").value
 
-            //Formel for utregning
+            //Sjekker om det finnes en verdi i input-feltene, og om den overskrider maks poeng per oppgave.
+            if (poengOppgave1 !== "" && poengOppgave2 !== "" && poengOppgave1 <= maksPoengOppgave1 && poengOppgave2 <= maksPoengOppgave2) {
+                btn.disabled = false
+            }
+            else {
+                btn.disabled = true
+            }
+        }
+        
+        //Funksjon for å regne- og skrive ut karakter.
+        function printGrade() {
+
+            //Variabler som holder på verdien til hvert input-felt.
+            /*Med to separate funksjoner, er det nødvendig å ha input-feltene sin verdi inne i funksjonenes scope. 
+            Dette for å sjekke hvorvidt verdiene har oppdatert seg. Dersom den ligger utenfor, vil verdien forbli 
+            det den opprinnelig ble satt som, og er derfor statisk.*/
+            const poengOppgave1 = document.getElementById("oppgave1").value
+            const poengOppgave2 = document.getElementById("oppgave2").value
+            
+            //Formel for utregning:
             let poengsum = (0.3 * (poengOppgave1 / maksPoengOppgave1 * 100)) 
             + (0.7 * (poengOppgave2 / maksPoengOppgave2 * 100))
 
-            //Utskrift
-            const utskrift = document.getElementById("karakter")
-
-            //Sjekker poengsum opp mot karakterskala, og om det finnes en verdi
-            if (poengOppgave1 === "" || poengOppgave2 === "") {
-                alert("Vennligst oppgi poengsum for både oppgave 1 og 2.")
+            /*Dersom knappen skulle være tilgjengelig ved oppstart, tross tomme input-felter, får brukeren
+            en melding og påminnelse.*/
+            if (poengOppgave1 === "" && poengOppgave2 === "") {
+                alert("Oppgi poengsum for både oppgave 1 og 2!")
             }
             else {
-                utskrift.innerHTML = "."
-                const interval = setInterval(function() {
-                    utskrift.innerHTML += "."
-
-                    if (utskrift.innerHTML === "....") {
-                        if (poengsum <= grades[0].treshold) {
-                            utskrift.innerHTML = grades[0].grade
-                        }
-                        if (poengsum > grades[0].treshold && poengsum <= grades[1].treshold) {
-                            utskrift.innerHTML = grades[1].grade
-                        }
-                        if (poengsum > grades[1].treshold && poengsum <= grades[2].treshold) {
-                            utskrift.innerHTML = grades[2].grade
-                        }
-                        if (poengsum > grades[2].treshold && poengsum <= grades[3].treshold) {
-                            utskrift.innerHTML = grades[3].grade
-                        }
-                        if (poengsum > grades[3].treshold && poengsum <= grades[4].treshold) {
-                            utskrift.innerHTML = grades[4].grade
-                        }
-                        if (poengsum > grades[4].treshold) {
-                            utskrift.innerHTML = grades[5].grade
-                        }
-                        clearInterval(interval)
-                    }
-                }, 500)
+                //Sjekker den utregnede poengsummen opp mot karakterskala.
+                /*Karakterskalaen er en liste (array) med objekter. For å benytte verdiene til hvert enkelt nøkkelpar innad,
+                refererer jeg ved å bruke objektenes individuelle index "[]" i listen, og deretter verdi per nøkkel.*/
+                if (poengsum <= grades[0].treshold) {
+                    utskrift.innerHTML = grades[0].grade
+                }
+                if (poengsum > grades[0].treshold && poengsum <= grades[1].treshold) {
+                    utskrift.innerHTML = grades[1].grade
+                }
+                if (poengsum > grades[1].treshold && poengsum <= grades[2].treshold) {
+                    utskrift.innerHTML = grades[2].grade
+                }
+                if (poengsum > grades[2].treshold && poengsum <= grades[3].treshold) {
+                    utskrift.innerHTML = grades[3].grade
+                }
+                if (poengsum > grades[3].treshold && poengsum <= grades[4].treshold) {
+                    utskrift.innerHTML = grades[4].grade
+                }
+                if (poengsum > grades[4].treshold) {
+                    utskrift.innerHTML = grades[5].grade
+                }
             }
         }
-
-        //Regner ut og printer ved trykk på knapp
-        const btn = document.getElementById("utregning")
-        btn.addEventListener("click", printGrade)
         
     </script>
 </body>
