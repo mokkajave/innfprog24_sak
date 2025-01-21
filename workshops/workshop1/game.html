@@ -95,10 +95,10 @@
 
         //Notebook
         const notebook = {
-            variables: 3,
-            arrays: 2,
-            loops: 4,
-            functions: 7
+            variables: 0,
+            arrays: 0,
+            loops: 0,
+            functions: 0
         }
 
         //Array containing all item types
@@ -111,13 +111,46 @@
             y: canvas.height / 2
         }
 
-        //Elements storage
+        //Storing elements
         const items = [
             {type: "variable", x: 100, y: 50, lifetime: 8, caught: false},
             {type: "loop", x: 430, y: 290, lifetime: 3, caught: false},
             {type: "bug", x: 500, y: 400, lifetime: 0, caught: false},
             {type: "function", x: 300, y: 400, lifetime: 0, caught: false}
         ]
+
+        //Randomizing something between min and max values
+        function randomMinMax(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        //Function that randomly creates game-elements
+        function createItem() {
+            if (config.gamePaused === false) {
+                const elementType = itemTypes[randomMinMax(0, itemTypes.length - 1)]
+                //Set values according to element type
+                if (elementType === "bug") {
+                    items.push({
+                        type: "bug",
+                        x: randomMinMax(10, canvas.width - 50),
+                        y: canvas.height + 50,
+                        lifetime: 0,
+                        caught: false
+                    })
+                }
+                else {
+                    items.push({
+                        type: elementType,
+                        x: randomMinMax(10, canvas.width - 50),
+                        y: randomMinMax(10, canvas.height - 50),
+                        lifetime: randomMinMax(3, 9),
+                        caught: false
+                    })
+                }
+            }
+            setTimeout(createItem, randomMinMax(600, 4000))
+        }
+        createItem()
 
         //Function for all prints
         function updateStaticUI() {
@@ -136,7 +169,6 @@
             document.getElementById("loops").innerHTML = notebook.loops;
             document.getElementById("functions").innerHTML = notebook.functions;
         }
-
         updateStaticUI();
 
         //Updates a single stat
@@ -257,9 +289,14 @@
         }
 
         setInterval(function() {
-            if (config.gamePaused === false) {
+            if (config.gamePaused === false && config.energy > 0) {
                 config.duration++
                 updateSingleStaticUI("duration", config.duration)
+
+                //Counting down lifetime
+                items.map((item) => {
+                    item.lifetime--
+                })
             }
 
         }, 1000)
@@ -271,6 +308,15 @@
         || window.mozRequestAnimationFrame
 
         function drawElements() {
+            //Does the player have any lives left?
+            if (config.energy <= 0) {
+                ctx.beginPath()
+                ctx.font = "100px Arial"
+                ctx.fillStyle = "red"
+                ctx.fillText("GAME OVER", 50, 300)
+                ctx.closePath()
+            }
+            else {
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             //Moving Fortran
@@ -286,6 +332,15 @@
                 }
                 if (left === true) {
                     fortran.x = fortran.x - fortran.speed
+                }
+
+                if (fortran.x < -10 || fortran.x > canvas.width + 10 || fortran.y < -21 || fortran.y > canvas.height + 21) {
+                    //Lose one life (energy)
+                    config.energy--
+                    updateSingleStaticUI("energy", config.energy)
+                    //Replace Fortran in the middle of the board
+                    fortran.x = canvas.width / 2
+                    fortran.y = canvas.height / 2
                 }
             }
 
@@ -316,9 +371,81 @@
                 }
             })*/
 
-            items.filter((item) => item.lifetime > 0 || item.type === "bug").map((item, index) => {
-                drawItem(item.type, item.x, item.y, item.lifetime)
-            })
+            if (config.gamePaused === false) {
+                items.filter((item) => item.lifetime > 0 && item.caught === false || item.type === "bug").map((item, index) => {
+                    if(item.type === "bug") {
+                        item.y = item.y - 3
+
+                        //If bug is more than 100 pixels outside the board
+                        if(item.y < -100) {
+                            //Delete them
+                            items.splice(index, 1)
+                        }
+                    }
+                    //Check if Fortran collides with an element
+                    if (fortran.x + 20 > item.x 
+                    && fortran.x < item.x + 48
+                    && fortran.y + 42 > item.y
+                    && fortran.y < item.y + 48) {
+                        if (item.type === "bug" && item.caught === false) {
+                            items.splice(index, 1)
+                            config.energy--
+                            updateSingleStaticUI("energy", config.energy)
+                            item.caught = true
+                            config.points = config.points - 10
+                            updateSingleStaticUI("points", config.points)
+                        }
+                        if (item.type === "variable" && item.caught === false) {
+                            notebook.variables++
+                            updateSingleStaticUI("variables", notebook.variables)
+                            item.caught = true
+                            config.points = config.points + 5
+                            updateSingleStaticUI("points", config.points)
+                        }
+                        if (item.type === "array" && item.caught === false) {
+                            notebook.arrays++
+                            updateSingleStaticUI("arrays", notebook.arrays)
+                            item.caught = true
+                            config.points = config.points + 5
+                            updateSingleStaticUI("points", config.points)
+                        }
+                        if (item.type === "function" && item.caught === false) {
+                            notebook.functions++
+                            updateSingleStaticUI("functions", notebook.functions)
+                            item.caught = true
+                            config.points = config.points + 5
+                            updateSingleStaticUI("points", config.points)
+                        }
+                        if (item.type === "loop" && item.caught === false) {
+                            notebook.loops++
+                            updateSingleStaticUI("loops", notebook.loops)
+                            item.caught = true
+                            config.points = config.points + 5
+                            updateSingleStaticUI("points", config.points)
+                        }
+                        if (item.type === "energydrink" && item.caught === false) {
+                            config.energy++
+                            updateSingleStaticUI("energy", config.energy)
+                            item.caught = true
+                            config.points = config.points + 10
+                            updateSingleStaticUI("points", config.points)
+                        }
+                    }
+
+                    drawItem(item.type, item.x, item.y, item.lifetime)
+                })
+            }
+
+            //Testing if the array has at least one bug. If not, create bug:
+            if(!items.some((item) => item.type === "bug")) {
+                items.push({
+                    type: "bug",
+                    x: randomMinMax(10, canvas.width - 50),
+                    y: canvas.height + 50,
+                    lifetime: 0,
+                    caught: false
+                })
+            }
 
             //Pause-text
             ctx.beginPath()
@@ -328,10 +455,9 @@
             ctx.fillStyle = "#3c429b"
             ctx.fillText(config.gamePausedText, 660, 595)
             ctx.closePath()
-
+            }
             requestAnimationFrame(drawElements)
         }
-
         drawElements()
 
     </script>
